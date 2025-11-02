@@ -1,0 +1,13 @@
+version: "3.9"
+
+services:
+  wildfly:
+    build: .
+    container_name: nexdom-wildfly
+    ports:
+      - "8080:8080"
+      - "9990:9990"
+    environment:
+      - JAVA_OPTS=-Duser.timezone=America/Sao_Paulo
+    volumes:
+      - ./target/nexdom.war:/opt/jboss/wildfly/standalone/deployments/nexdom.war
