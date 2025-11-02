@@ -36,30 +36,40 @@ public class ProcedimentoDAO {
     public Procedimento buscarPorCodigo(String codigo, int idade, String sexo) {
         System.out.println("SQL codigo=" + codigo + ", idade=" + idade + ", sexo=" + sexo);
 
-        String sql = "SELECT * FROM procedimento WHERE codigo = ? AND idade = ? AND sexo = ?";
+        String sql = """
+        SELECT *
+        FROM procedimento
+        WHERE codigo = ? AND sexo = ? AND idade <= ?
+        ORDER BY idade DESC
+        LIMIT 1
+    """;
         Procedimento procedimento = null;
 
         try (Connection conn = ConnectionFactory.getConnection();
              PreparedStatement ps = conn.prepareStatement(sql)) {
 
             ps.setString(1, codigo);
-            ps.setInt(2, idade);
-            ps.setString(3, sexo);
+            ps.setString(2, sexo);
+            ps.setInt(3, idade);
 
             ResultSet rs = ps.executeQuery();
 
             if (rs.next()) {
+                int idadeMinima = rs.getInt("idade");
+                boolean permitidoNoBanco = rs.getBoolean("permitido");
+                boolean autorizado = (idade >= idadeMinima) && permitidoNoBanco;
+
                 procedimento = new Procedimento(
                         rs.getLong("id"),
                         rs.getString("codigo"),
-                        rs.getInt("idade"),
+                        idadeMinima,
                         rs.getString("sexo"),
-                        rs.getBoolean("permitido")
+                        autorizado
                 );
                 System.out.println("Encontrado: codigo =" + procedimento.getCodigo() +
-                        ", idade=" + procedimento.getIdade() +
+                        ", idadeMinima =" + procedimento.getIdade() +
                         ", sexo=" + procedimento.getSexo() +
-                        ", permitido=" + procedimento.getPermitido());
+                        ", permitido=" +autorizado );
             } else {
                 System.out.println("Nenhum resultado encontrado");
             }
