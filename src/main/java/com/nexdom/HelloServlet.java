@@ -16,11 +16,14 @@ public class HelloServlet extends HttpServlet {
     public void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException {
         response.setContentType("text/html");
 
-        // Hello
+
         PrintWriter out = response.getWriter();
         out.println("<html><body>");
         out.println("<h1>" + message + "</h1>");
         out.println("</body></html>");
+
+        com.nexdom.autorizacao.config.DatabaseInit.init();
+        response.getWriter().write("<h1>Banco criado e Liquibase executado!</h1>");
     }
 
     public void destroy() {
